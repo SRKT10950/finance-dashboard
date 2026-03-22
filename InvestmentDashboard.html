@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Investment Tracker</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Finance">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4ade80;
+            --secondary: #f87171;
+            --bg-dark: #09090b;
+            --card-bg: rgba(24, 24, 27, 0.65);
+            --border-color: rgba(255, 255, 255, 0.1);
+            --text-main: #f4f4f5;
+            --text-muted: #a1a1aa;
+            --accent-blue: #60a5fa;
+            --invest-theme: #c084fc;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: radial-gradient(circle at top left, #1e1b4b, #09090b 40%);
+            color: var(--text-main);
+            min-height: 100vh;
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .dashboard {
+            width: 100%;
+            max-width: 1400px; /* Wider for all the columns */
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .top-nav {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+
+        .top-nav a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .top-nav a:hover {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .top-nav a.active {
+            background: rgba(192, 132, 252, 0.15); /* matching --invest-theme */
+            color: var(--invest-theme);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+            background: linear-gradient(to right, #60a5fa, #c084fc);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .dataTable {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            padding: 1rem 0.8rem;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.02);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 0.8rem 0.6rem;
+            border-bottom: 1px solid var(--border-color);
+            color: #d4d4d8;
+            font-size: 0.95rem;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255, 255, 255, 0.03); }
+
+        .num { text-align: right; font-variant-numeric: tabular-nums; }
+        
+        .editable {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: inherit;
+            font-family: inherit;
+            font-size: 0.95rem;
+            padding: 0.4rem;
+            border-radius: 6px;
+            font-weight: inherit;
+            transition: all 0.2s;
+            box-sizing: border-box;
+            width: 100%;
+        }
+        
+        .editable:focus {
+            outline: none;
+            border-color: var(--invest-theme);
+            background: rgba(0, 0, 0, 0.4);
+            box-shadow: 0 0 0 2px rgba(192, 132, 252, 0.2);
+        }
+
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            opacity: 0.6;
+            cursor: pointer;
+        }
+
+        .btn-add {
+            background: rgba(192, 132, 252, 0.15);
+            border: 1px solid var(--invest-theme);
+            color: var(--invest-theme);
+            padding: 0.7rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        
+        .btn-add:hover {
+            background: var(--invest-theme);
+            color: #fff;
+        }
+        
+    </style>
+</head>
+<body>
+
+<div class="dashboard">
+    <div class="top-nav">
+        <a href="FinancialDashboard.html">Overview</a>
+        <a href="BudgetDashboard.html">Budget</a>
+        <a href="LoanDashboard.html">Loans</a>
+        <a href="InvestmentDashboard.html" class="active">Investments</a>
+        <a href="LenderDashboard.html">Lend & Borrow</a>
+        <a href="RepaymentDashboard.html">Repayments</a>
+    </div>
+
+    <div class="header">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+          <div>
+              <h1>Investment Tracker</h1>
+              <p style="color: var(--text-muted); margin-top: 0.5rem; margin-bottom: 0;">Manage and track all your active investments</p>
+          </div>
+          <div style="display: flex; gap: 1rem;">
+              <div style="background: rgba(24, 24, 27, 0.65); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1rem 1.5rem; text-align: right;">
+                  <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.25rem;">Total Invested</div>
+                  <div id="sum-total-inv" style="font-size: 1.5rem; font-weight: 700; color: var(--invest-theme);">₹0</div>
+              </div>
+              <div style="background: rgba(24, 24, 27, 0.65); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1rem 1.5rem; text-align: right;">
+                  <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.25rem;">Expected Maturity</div>
+                  <div id="sum-total-mat" style="font-size: 1.5rem; font-weight: 700; color: var(--primary);">₹0</div>
+              </div>
+          </div>
+      </div>
+    </div>
+
+    <div class="dataTable">
+        <table id="investTable">
+            <thead>
+                <tr>
+                    <th>Instrument</th>
+                    <th>Holder</th>
+                    <th>Start Date</th>
+                    <th class="num">Tenure (m)</th>
+                    <th class="num">Monthly Contrib (₹)</th>
+                    <th class="num">Total Invested (₹)</th>
+                    <th style="text-align: center;">Maturity Date</th>
+                    <th class="num">Maturity Value (₹)</th>
+                    <th>Notes</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="investBody">
+                <!-- Data goes here -->
+            </tbody>
+        </table>
+    </div>
+
+    <div style="display: flex; gap: 1rem; align-items: flex-start; margin-top: 0.5rem;">
+        <button class="btn-add" id="addRowBtn">+ Add Row</button>
+        <button class="btn-add" id="saveJsonBtn" style="background: rgba(74, 222, 128, 0.15); border-color: var(--primary); color: var(--primary);">Save Data as JSON</button>
+        <label class="btn-add" style="background: rgba(161, 161, 170, 0.15); border-color: var(--text-muted); color: var(--text-main); cursor: pointer;">
+            Load JSON Form
+            <input type="file" id="loadJsonInput" accept=".json" style="display: none;">
+        </label>
+    </div>
+</div>
+
+<script>
+    const fmt = n => Number(Math.round(n)).toLocaleString('en-IN');
+    const tbody = document.getElementById('investBody');
+
+    const updateInvestSummary = () => {
+        let sumInv = 0;
+        let sumMat = 0;
+
+        document.querySelectorAll('#investBody tr').forEach(tr => {
+            const tenure = Number(tr.querySelector('.in-tenure').value) || 0;
+            const contrib = Number(tr.querySelector('.in-contrib').value) || 0;
+            const matval = Number(tr.querySelector('.in-matval').value) || 0;
+
+            sumInv += (tenure * contrib);
+            sumMat += matval;
+        });
+
+        const domInv = document.getElementById('sum-total-inv');
+        const domMat = document.getElementById('sum-total-mat');
+
+        if (domInv) domInv.innerText = `₹${fmt(sumInv)}`;
+        if (domMat) domMat.innerText = `₹${fmt(sumMat)}`;
+    };
+
+    const saveToLocalStorage = () => {
+        const rows = [];
+        document.querySelectorAll('#investBody tr').forEach(tr => {
+            const instrument = tr.querySelector('.in-inst').value;
+            const holder = tr.querySelector('.in-hold').value;
+            const start = tr.querySelector('.in-start').value;
+            const tenure = Number(tr.querySelector('.in-tenure').value) || 0;
+            const contrib = Number(tr.querySelector('.in-contrib').value) || 0;
+            const matval = Number(tr.querySelector('.in-matval').value) || 0;
+            const notes = tr.querySelector('.in-notes').value;
+            
+            if (instrument || holder || start || tenure || contrib || matval || notes) {
+                rows.push({ instrument, holder, start, tenure, contrib, matval, notes });
+            }
+        });
+        localStorage.setItem('investData', JSON.stringify(rows));
+        updateInvestSummary();
+    };
+
+    const recalcRow = (tr) => {
+        const startStr = tr.querySelector('.in-start').value;
+        const tenure = Number(tr.querySelector('.in-tenure').value) || 0;
+        const outMatDate = tr.querySelector('.out-mat-date');
+
+        if (startStr && tenure > 0) {
+            const start = new Date(startStr);
+            const mat = new Date(start);
+            mat.setMonth(mat.getMonth() + tenure);
+            outMatDate.innerText = `${String(mat.getDate()).padStart(2, '0')}-${String(mat.getMonth() + 1).padStart(2, '0')}-${mat.getFullYear()}`;
+        } else {
+            outMatDate.innerText = '-';
+        }
+
+        const instrument = tr.querySelector('.in-inst').value.trim().toUpperCase();
+        const contrib = Number(tr.querySelector('.in-contrib').value) || 0;
+        const matvalInput = tr.querySelector('.in-matval');
+
+        if (instrument === "PPF" && contrib > 0 && tenure > 0) {
+            // standard compound 7.1% annual approximation (Public Provident Fund)
+            const r = 0.071 / 12; 
+            const fv = contrib * ((Math.pow(1 + r, tenure) - 1) / r) * (1 + r);
+            matvalInput.value = Math.round(fv);
+            matvalInput.style.background = "rgba(192, 132, 252, 0.15)";
+        } else {
+            matvalInput.style.background = "";
+        }
+        
+        const totInvOutput = tr.querySelector('.out-tot-inv');
+        if (totInvOutput) {
+            if (tenure > 0 && contrib > 0) {
+                totInvOutput.innerText = fmt(tenure * contrib);
+            } else {
+                totInvOutput.innerText = '-';
+            }
+        }
+    };
+
+    const addRow = (data = null, skipSave = false) => {
+        const tr = document.createElement('tr');
+        
+        const d_inst = data && data.instrument ? data.instrument : '';
+        const d_hold = data && data.holder ? data.holder : '';
+        const d_start = data && data.start ? data.start : '';
+        const d_tenure = data && data.tenure ? data.tenure : '';
+        const d_contrib = data && data.contrib ? data.contrib : '';
+        const d_matval = data && data.matval ? data.matval : '';
+        const d_notes = data && data.notes ? data.notes : '';
+
+        tr.innerHTML = `
+            <td><input type="text" class="editable in-inst" value="${d_inst}" placeholder="e.g. PPF" style="width: 140px"></td>
+            <td><input type="text" class="editable in-hold" value="${d_hold}" placeholder="e.g. Self" style="width: 120px"></td>
+            <td><input type="date" class="editable in-start" value="${d_start}"></td>
+            <td class="num"><input type="number" class="editable num in-tenure" value="${d_tenure}" style="width: 90px"></td>
+            <td class="num"><input type="number" class="editable num in-contrib" value="${d_contrib}" style="width: 140px"></td>
+            <td class="num out-tot-inv" style="font-weight: 500;">-</td>
+            <td class="out-mat-date" style="text-align: center;">-</td>
+            <td class="num"><input type="number" class="editable num in-matval" value="${d_matval}" style="width: 140px"></td>
+            <td><input type="text" class="editable in-notes" value="${d_notes}" placeholder="Notes" style="width: 200px"></td>
+            <td><button style="background:transparent; border:none; color:var(--secondary); font-weight:bold; font-size:1.2rem; cursor:pointer; padding:0 0.5rem;" title="Remove row">×</button></td>
+        `;
+
+        const btnDel = tr.querySelector('button');
+        btnDel.addEventListener('click', () => {
+            tr.remove();
+            saveToLocalStorage();
+        });
+
+        const inputs = tr.querySelectorAll('.editable');
+        inputs.forEach(i => i.addEventListener('input', () => {
+            recalcRow(tr);
+            saveToLocalStorage();
+        }));
+
+        tbody.appendChild(tr);
+        recalcRow(tr); 
+        
+        if (!skipSave) {
+            saveToLocalStorage();
+        }
+    };
+
+    const initData = () => {
+        try {
+            const savedData = localStorage.getItem('investData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                if (Array.isArray(data) && data.length > 0) {
+                    data.forEach(item => addRow(item, true));
+                    return;
+                }
+            }
+        } catch (err) {
+            console.error(err);
+        }
+        
+        // Add one default matching image
+        addRow({
+            instrument: "PPF",
+            holder: "Self",
+            tenure: 180,
+            contrib: 1000
+        }, true);
+    };
+
+    initData();
+    updateInvestSummary();
+
+    document.getElementById('addRowBtn').addEventListener('click', () => addRow(null));
+
+    // Export JSON
+    document.getElementById('saveJsonBtn').addEventListener('click', () => {
+        const rows = [];
+        document.querySelectorAll('#investBody tr').forEach(tr => {
+            const instrument = tr.querySelector('.in-inst').value;
+            const holder = tr.querySelector('.in-hold').value;
+            const startStr = tr.querySelector('.in-start').value;
+            const tenure = Number(tr.querySelector('.in-tenure').value) || 0;
+            const contrib = Number(tr.querySelector('.in-contrib').value) || 0;
+            const matval = Number(tr.querySelector('.in-matval').value) || 0;
+            const notes = tr.querySelector('.in-notes').value;
+            
+            if (instrument || holder || startStr || tenure || contrib || matval || notes) {
+                rows.push({ instrument, holder, start: startStr, tenure, contrib, matval, notes });
+            }
+        });
+        const blob = new Blob([JSON.stringify(rows, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "investments_archive.json";
+        a.click();
+        URL.revokeObjectURL(url);
+    });
+
+    // Import JSON
+    document.getElementById('loadJsonInput').addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const data = JSON.parse(event.target.result);
+                if (Array.isArray(data)) {
+                    tbody.innerHTML = ''; 
+                    data.forEach(item => addRow(item, true));
+                    saveToLocalStorage();
+                } else alert("Invalid JSON format.");
+            } catch (err) {
+                alert("Error importing document.");
+            }
+        };
+        e.target.value = ''; 
+        reader.readAsText(file);
+    });
+</script>
+</body>
+</html>

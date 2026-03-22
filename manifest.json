@@ -1,0 +1,17 @@
+{
+  "name": "Financial Tracker",
+  "short_name": "Finance",
+  "description": "Personal Financial Dashboard & Tracker",
+  "start_url": "FinancialDashboard.html",
+  "display": "standalone",
+  "background_color": "#09090b",
+  "theme_color": "#09090b",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
