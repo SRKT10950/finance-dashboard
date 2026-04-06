@@ -249,7 +249,6 @@
               <div style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.25rem">Total Actual</div>
               <div id="sum-actual" style="font-size: 1.5rem; font-weight: 700; color: var(--primary)">₹0</div>
             </div>
-
           </div>
         </div>
       </div>
@@ -288,7 +287,24 @@
       // Core Application State
       let budgetData = [];
 
-      const defaultCategories = ["Groceries", "Utilities", "Transport", "Medical", "Childcare", "Education", "Dining Out", "Entertainment", "Insurance", "Mobile/Wifi", "Gas", "Electricity", "Helper", "Other"];
+      const defaultCategories = [
+        { name: "Helper", planned: 1000 },
+        { name: "Gas", planned: 1000 },
+        { name: "Electricity", planned: 3500 },
+        { name: "Wifi", planned: 1100 },
+        { name: "Milk", planned: 2700 },
+        { name: "Mobile", planned: 1280 },
+        { name: "Baby", planned: 5000 },
+        { name: "House maintenance", planned: 0 },
+        { name: "Groceries", planned: 5000 },
+        { name: "Vegetables", planned: 5000 },
+        { name: "Transport", planned: 0 },
+        { name: "Medical", planned: 0 },
+        { name: "Education", planned: 0 },
+        { name: "Dining Out", planned: 0 },
+        { name: "Insurance", planned: 0 },
+        { name: "Other", planned: 2000 }
+      ];
 
       // Filter Initialization
       const now = new Date();
@@ -320,8 +336,6 @@
 
         if (domPlan) domPlan.innerText = `₹${fmt(totalPlanned)}`;
         if (domAct) domAct.innerText = `₹${fmt(totalActual)}`;
-
-
       };
 
       const saveToLocalStorage = () => {
@@ -388,8 +402,8 @@
             const item = {
               year: year,
               month: month,
-              category: cat,
-              planned: 0,
+              category: cat.name || cat,
+              planned: cat.planned || 0,
               actual: 0
             };
             budgetData.push(item);
